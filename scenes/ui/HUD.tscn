@@ -27,6 +27,9 @@ max_value = 100.0
 value = 100.0
 show_percentage = false
 
+[node name="BulletLabel" type="Label" parent="FuelPanel/VBox"]
+text = "○  PISTOL"
+
 [node name="InteractionPrompt" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 1.0

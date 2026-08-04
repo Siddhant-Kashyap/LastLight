@@ -19,6 +19,14 @@ const MAX_HEALTH: float = 100.0
 const MAX_SANITY: float = 100.0
 const MAX_FUEL: float = 100.0
 
+# Item IDs
+const ITEM_BULLET: String = "bullet"
+const ITEM_KEY_PREFIX: String = "key_"
+const ITEM_LOG_PREFIX: String = "log_"
+
+# Kill plane
+const KILL_PLANE_Y: float = -12.0
+
 # Persistence
 const SAVE_FILE_VERSION: int = 1
 const SAVE_PATH: String = "user://save_data.tres"

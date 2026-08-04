@@ -22,6 +22,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_update_focus()
+	if UIManager.is_ui_open("dialogue"):
+		return
 	if Input.is_action_just_pressed("interact"):
 		try_interact()
 

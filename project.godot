@@ -26,6 +26,8 @@ AudioManager="*res://scripts/managers/AudioManager.gd"
 SaveManager="*res://scripts/managers/SaveManager.gd"
 UIManager="*res://scripts/managers/UIManager.gd"
 SceneManager="*res://scripts/managers/SceneManager.gd"
+InventoryManager="*res://scripts/managers/InventoryManager.gd"
+CheckpointManager="*res://scripts/managers/CheckpointManager.gd"
 
 [display]
 

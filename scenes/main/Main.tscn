@@ -1,10 +1,13 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/camera/CameraRig.tscn" id="2_camera"]
 [ext_resource type="PackedScene" path="res://scenes/lighting/Lighting.tscn" id="3_lighting"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="4_hud"]
 [ext_resource type="PackedScene" path="res://scenes/props/FuelPickup.tscn" id="5_fuel"]
+[ext_resource type="PackedScene" path="res://scenes/world/Checkpoint.tscn" id="6_checkpoint"]
+[ext_resource type="PackedScene" path="res://scenes/props/MemoryLog.tscn" id="7_log"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogueBox.tscn" id="8_dialogue"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(80, 0.5, 2)
@@ -110,6 +113,8 @@ position = Vector3(0, 0.5, 0)
 
 [node name="HUD" parent="UI" instance=ExtResource("4_hud")]
 
+[node name="DialogueBox" parent="UI" instance=ExtResource("8_dialogue")]
+
 [node name="Managers" type="Node" parent="."]
 
 [node name="Props" type="Node3D" parent="."]
@@ -125,3 +130,22 @@ position = Vector3(12, 1.35, 0)
 
 [node name="Fuel4" parent="Props" instance=ExtResource("5_fuel")]
 position = Vector3(25, 1.85, 0)
+
+[node name="Checkpoint1" parent="Props" instance=ExtResource("6_checkpoint")]
+position = Vector3(0, 0, 0)
+
+[node name="Checkpoint2" parent="Props" instance=ExtResource("6_checkpoint")]
+position = Vector3(20, 0, 0)
+checkpoint_id = "checkpoint_02"
+
+[node name="Log1" parent="Props" instance=ExtResource("7_log")]
+position = Vector3(-5, 0.2, 0)
+log_id = "surface_01"
+speaker_name = "E. Ward"
+log_lines = PackedStringArray("The power went out three hours ago. Emergency lights too.", "Something cut the main line. Or someone.", "I need to find a way down to the maintenance level.")
+
+[node name="Log2" parent="Props" instance=ExtResource("7_log")]
+position = Vector3(18, 1.35, 0)
+log_id = "surface_02"
+speaker_name = "Unknown"
+log_lines = PackedStringArray("DO NOT GO BELOW LEVEL 3", "THEY CAN HEAR YOU BREATHE")

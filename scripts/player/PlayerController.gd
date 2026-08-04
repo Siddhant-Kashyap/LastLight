@@ -41,6 +41,9 @@ func _ready() -> void:
 	Debug.print_info("PlayerController ready", "Player")
 
 func _physics_process(delta: float) -> void:
+	if global_position.y < Constants.KILL_PLANE_Y:
+		CheckpointManager.respawn_player()
+		return
 	_update_timers(delta)
 	_apply_gravity(delta)
 	_handle_jump()

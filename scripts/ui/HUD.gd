@@ -3,6 +3,7 @@ extends Control
 
 @onready var _fuel_bar: ProgressBar = $FuelPanel/VBox/FuelBar
 @onready var _fuel_title: Label = $FuelPanel/VBox/FuelTitle
+@onready var _bullet_label: Label = $FuelPanel/VBox/BulletLabel
 @onready var _prompt: Label = $InteractionPrompt
 
 var _fill_full: StyleBoxFlat
@@ -39,6 +40,9 @@ func _build_styles() -> void:
 	_fuel_bar.add_theme_stylebox_override("fill", _fill_full)
 	_fuel_bar.custom_minimum_size = Vector2(160, 14)
 
+	_bullet_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+	_bullet_label.add_theme_font_size_override("font_size", 11)
+
 	$FuelPanel/VBox.add_theme_constant_override("separation", 5)
 
 	_prompt.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
@@ -68,6 +72,9 @@ func _connect_signals() -> void:
 		detector.interactable_focused.connect(_on_focused)
 		detector.interactable_unfocused.connect(_on_unfocused)
 
+	InventoryManager.item_changed.connect(_on_item_changed)
+	_update_bullet_ui()
+
 func _on_fuel_changed(current: float, maximum: float) -> void:
 	var pct := current / maximum
 	_fuel_bar.value = pct * 100.0
@@ -84,3 +91,11 @@ func _on_focused(_interactable: Area3D, label: String) -> void:
 
 func _on_unfocused() -> void:
 	_prompt.visible = false
+
+func _on_item_changed(item_id: String, _count: int) -> void:
+	if item_id == Constants.ITEM_BULLET:
+		_update_bullet_ui()
+
+func _update_bullet_ui() -> void:
+	var has_bullet := InventoryManager.has_item(Constants.ITEM_BULLET)
+	_bullet_label.text = ("●" if has_bullet else "○") + "  PISTOL"
