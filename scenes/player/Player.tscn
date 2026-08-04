@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/PlayerController.gd" id="1_controller"]
 [ext_resource type="PackedScene" path="res://scenes/player/Lantern.tscn" id="2_lantern"]
+[ext_resource type="Script" path="res://scripts/interaction/InteractionDetector.gd" id="3_detector"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.3
@@ -10,6 +11,9 @@ height = 1.8
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
 radius = 0.3
 height = 1.8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1"]
+radius = 1.5
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_controller")
@@ -26,6 +30,13 @@ mesh = SubResource("CapsuleMesh_1")
 
 [node name="Lantern" parent="." instance=ExtResource("2_lantern")]
 position = Vector3(0.3, 1.1, 0.1)
+
+[node name="InteractionDetector" type="Area3D" parent="."]
+position = Vector3(0, 0.9, 0)
+script = ExtResource("3_detector")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionDetector"]
+shape = SubResource("SphereShape3D_1")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
