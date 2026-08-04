@@ -1,0 +1,29 @@
+# Godot 4 generated files
+.godot/
+
+# Exported projects
+/android/
+/ios/
+/linux/
+/macos/
+/web/
+/windows/
+export_presets.cfg
+*.pck
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.exe
+*.x86_64
+*.x86
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

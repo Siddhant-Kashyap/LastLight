@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/camera/CameraController.gd" id="1_controller"]
+
+[node name="CameraRig" type="Node3D"]
+script = ExtResource("1_controller")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 3, 8)
+rotation_degrees = Vector3(-15, 0, 0)
