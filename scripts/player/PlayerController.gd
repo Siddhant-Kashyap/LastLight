@@ -34,10 +34,14 @@ var _was_on_floor: bool = false
 var _locked_z: float = 0.0
 
 @onready var _visual_root: Node3D = $VisualRoot
+@onready var _animator: PlayerAnimator = $VisualRoot/CharacterMesh
 
 func _ready() -> void:
 	_locked_z = global_position.z
 	add_to_group("player")
+	jumped.connect(func(_double: bool) -> void: _animator.on_jumped())
+	landed.connect(_animator.on_landed)
+	_attach_lantern_to_hand()
 	Debug.print_info("PlayerController ready", "Player")
 
 func _physics_process(delta: float) -> void:
@@ -53,6 +57,7 @@ func _physics_process(delta: float) -> void:
 	global_position.z = _locked_z
 	_handle_floor_state_change()
 	_update_locomotion_state()
+	_animator.update_state(velocity, is_on_floor())
 
 func _update_timers(delta: float) -> void:
 	if is_on_floor():
@@ -123,6 +128,15 @@ func _update_locomotion_state() -> void:
 		locomotion_state = LocomotionState.RUNNING
 	else:
 		locomotion_state = LocomotionState.IDLE
+
+func _attach_lantern_to_hand() -> void:
+	var lantern := $Lantern as Node3D
+	# Reparent under VisualRoot so it flips with facing direction (scale.x)
+	lantern.reparent(_visual_root, false)
+	# x: side offset, y: hand height (~56% of 1.28m character), z: toward camera
+	lantern.position = Vector3(0.13, 0.72, 0.04)
+	lantern.rotation = Vector3.ZERO
+	lantern.scale = Vector3.ONE
 
 func _update_facing(facing_right: bool) -> void:
 	if is_facing_right == facing_right:
