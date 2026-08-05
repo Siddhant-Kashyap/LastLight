@@ -1,0 +1,78 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/Chapter01Builder.gd" id="1_builder"]
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/camera/CameraRig.tscn" id="3_camera"]
+[ext_resource type="PackedScene" path="res://scenes/lighting/Lighting.tscn" id="4_lighting"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DialogueBox.tscn" id="6_dialogue"]
+[ext_resource type="PackedScene" path="res://scenes/world/Checkpoint.tscn" id="7_checkpoint"]
+[ext_resource type="PackedScene" path="res://scenes/props/MemoryLog.tscn" id="8_log"]
+[ext_resource type="PackedScene" path="res://scenes/props/FuelPickup.tscn" id="9_fuel"]
+
+[node name="Chapter01_Surface" type="Node"]
+
+[node name="LevelGeometry" type="Node3D" parent="."]
+script = ExtResource("1_builder")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(-15, 0.5, 0)
+
+[node name="CameraRig" parent="." instance=ExtResource("3_camera")]
+
+[node name="Lighting" parent="." instance=ExtResource("4_lighting")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="UI" instance=ExtResource("5_hud")]
+
+[node name="DialogueBox" parent="UI" instance=ExtResource("6_dialogue")]
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="CheckpointStart" parent="Props" instance=ExtResource("7_checkpoint")]
+position = Vector3(-14, 0, 0)
+checkpoint_id = "ch01_start"
+
+[node name="CheckpointMidway" parent="Props" instance=ExtResource("7_checkpoint")]
+position = Vector3(57, 0, 0)
+checkpoint_id = "ch01_midway"
+
+[node name="Log_EliasJournal" parent="Props" instance=ExtResource("8_log")]
+position = Vector3(-8, 0.2, 0)
+log_id = "ch01_elias_journal"
+speaker_name = "E. Ward — Personal Journal"
+log_lines = PackedStringArray("March 14th. The Helios power grid is the most complex system I have ever designed. Twelve sublevels, redundant failsafes on every transformer. I am proud of this one.", "The client briefing called it an electromagnetic research facility. I did not ask what that meant. I probably should have.")
+
+[node name="Log_MayaDay1" parent="Props" instance=ExtResource("8_log")]
+position = Vector3(27, 0.2, 0)
+log_id = "ch01_maya_day1"
+speaker_name = "Maya Ward — Work Journal"
+log_lines = PackedStringArray("Day 1. The facility is much larger underground than it looks from the surface. Dr. Chen personally welcomed me — apparently they do not often hire biochemists.", "They run health checks on all new staff. Weekly. That seems excessive. Probably just protocol.")
+
+[node name="Log_SecurityMemo" parent="Props" instance=ExtResource("8_log")]
+position = Vector3(47, 0.2, 0)
+log_id = "ch01_security_memo"
+speaker_name = "Helios Compound — Internal Memo"
+log_lines = PackedStringArray("RE: Project Helios — Classification Reminder", "All personnel are reminded that Project Helios operates under Level 5 classification. Discussion of research methodology, subject numbers, or substrate data outside designated secure areas is grounds for immediate termination and legal action.", "This is not a warning. This is a reminder. There will not be another one.")
+
+[node name="Log_MayaDay47" parent="Props" instance=ExtResource("8_log")]
+position = Vector3(93.5, 0.95, 0)
+log_id = "ch01_maya_day47"
+speaker_name = "Maya Ward — Work Journal"
+log_lines = PackedStringArray("Day 47. I have been feeling strange. Like parts of me are somewhere else. Hard to explain.", "I mentioned it to Dr. Chen during my weekly checkup. He looked at me for a long moment before saying it was probably stress.", "He did not write it down.")
+
+[node name="Log_AnonymousNote" parent="Props" instance=ExtResource("8_log")]
+position = Vector3(66, 0.2, 0)
+log_id = "ch01_anonymous_note"
+speaker_name = "— Unknown"
+log_lines = PackedStringArray("They are not volunteers.", "Check the consent forms. Check who signed them.")
+
+[node name="Fuel1" parent="Props" instance=ExtResource("9_fuel")]
+position = Vector3(-11, 0.2, 0)
+
+[node name="Fuel2" parent="Props" instance=ExtResource("9_fuel")]
+position = Vector3(24, 0.2, 0)
+
+[node name="Fuel3" parent="Props" instance=ExtResource("9_fuel")]
+position = Vector3(72, 0.2, 0)

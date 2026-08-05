@@ -13,7 +13,7 @@ config_version=5
 config/name="Last Light"
 config/description="A 2.5D psychological horror platformer"
 config/version="0.1.0"
-run/main_scene="res://scenes/main/Main.tscn"
+run/main_scene="res://scenes/levels/Chapter01_Surface.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
