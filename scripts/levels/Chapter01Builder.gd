@@ -160,8 +160,8 @@ func _model(path: String, pos: Vector3, scale_val: float = 1.0, ry: float = 0.0)
 # x: -22 to 10 | open sky, rain, wet ground, industrial debris
 
 func _build_exterior() -> void:
-	# Wet ground (low roughness = reflective sheen)
-	_solid(Vector3(-6, -0.25, 0), Vector3(33, 0.5, DEPTH), _ext_concrete)
+	# Wet ground — tall slab so camera never sees void below the front face
+	_solid(Vector3(-6, -15.0, 0), Vector3(33, 30.0, DEPTH), _ext_concrete)
 
 	# Left boundary wall
 	_solid(Vector3(-22, 2.5, 0), Vector3(0.5, 5.5, DEPTH), _metal_rough)
@@ -273,7 +273,7 @@ func _build_lobby_entrance() -> void:
 func _build_dark_corridor() -> void:
 	var cx: float = 45.0;  var w: float = 20.0;  var cy: float = 3.5
 
-	_solid(Vector3(cx, -0.25, 0), Vector3(w, 0.5, DEPTH), _int_concrete)
+	_solid(Vector3(cx, -15.0, 0), Vector3(w, 30.0, DEPTH), _int_concrete)
 	_solid(Vector3(cx, cy + 0.25, 0), Vector3(w, 0.5, DEPTH), _ceiling_mat)
 	# Upper wall only — gap y:0–2.8 for door (shared with lobby above)
 	_solid(Vector3(35, 3.15, 0), Vector3(0.5, 0.7, DEPTH), _wall_dark)
@@ -318,7 +318,7 @@ func _build_dark_corridor() -> void:
 func _build_break_room() -> void:
 	var cx: float = 66.5;  var w: float = 23.0;  var cy: float = 4.5
 
-	_solid(Vector3(cx, -0.25, 0), Vector3(w, 0.5, DEPTH), _int_concrete)
+	_solid(Vector3(cx, -15.0, 0), Vector3(w, 30.0, DEPTH), _int_concrete)
 	_solid(Vector3(cx, cy + 0.25, 0), Vector3(w, 0.5, DEPTH), _ceiling_mat)
 	_solid(Vector3(78, cy * 0.5, 0), Vector3(0.5, cy + 0.5, DEPTH), _wall_mid)
 	_deco(Vector3(cx, cy * 0.5, -HD), Vector3(w, cy + 0.5, 0.2), _back_wall)
@@ -374,7 +374,7 @@ func _build_break_room() -> void:
 func _build_main_lobby() -> void:
 	var cx: float = 93.0;  var w: float = 30.0;  var cy: float = 6.0
 
-	_solid(Vector3(cx, -0.25, 0), Vector3(w, 0.5, DEPTH), _int_concrete)
+	_solid(Vector3(cx, -15.0, 0), Vector3(w, 30.0, DEPTH), _int_concrete)
 	_solid(Vector3(cx, cy + 0.25, 0), Vector3(w, 0.5, DEPTH), _ceiling_mat)
 	_deco(Vector3(cx, cy * 0.5, -HD), Vector3(w, cy + 0.5, 0.2), _back_wall)
 
@@ -570,8 +570,10 @@ func _build_rain() -> void:
 	var rain := GPUParticles3D.new()
 	rain.position = Vector3(-6, 14, 0)
 	rain.amount = 900
-	rain.lifetime = 1.9
-	rain.preprocess = 1.8
+	# Lifetime tuned so drops die at y≈0: with v0=11-17 m/s + gravity 24 m/s²
+	# from y=14 they reach y=0 in ~0.58-0.72 s → clamp at 0.68
+	rain.lifetime = 0.68
+	rain.preprocess = 0.68
 	rain.emitting = true
 	rain.draw_passes = 1
 	rain.visibility_aabb = AABB(Vector3(-20, -15, -2), Vector3(38, 16, 4))
@@ -599,6 +601,39 @@ func _build_rain() -> void:
 	quad.material = rm
 	rain.draw_pass_1 = quad
 	add_child(rain)
+
+	# Ground splash — tiny droplets spraying up from the wet pavement
+	var splash := GPUParticles3D.new()
+	splash.position = Vector3(-6, 0.04, 0)
+	splash.amount = 280
+	splash.lifetime = 0.38
+	splash.preprocess = 0.38
+	splash.emitting = true
+	splash.visibility_aabb = AABB(Vector3(-20, 0, -2), Vector3(38, 3, 4))
+
+	var spm := ParticleProcessMaterial.new()
+	spm.direction = Vector3(0.0, 1.0, 0.0)
+	spm.spread = 68.0
+	spm.gravity = Vector3(0.0, -22.0, 0.0)
+	spm.initial_velocity_min = 0.6
+	spm.initial_velocity_max = 2.6
+	spm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	spm.emission_box_extents = Vector3(17.0, 0.01, 0.8)
+	spm.color = Color(0.55, 0.65, 0.85, 0.32)
+	spm.scale_min = 0.18
+	spm.scale_max = 0.60
+	splash.process_material = spm
+
+	var sq := QuadMesh.new()
+	sq.size = Vector2(0.022, 0.022)
+	var sm := StandardMaterial3D.new()
+	sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sm.albedo_color = Color(0.58, 0.68, 0.88, 0.28)
+	sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	sm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	sq.material = sm
+	splash.draw_pass_1 = sq
+	add_child(splash)
 
 # ── ATMOSPHERIC LIGHTS ────────────────────────────────────────────────────────
 
