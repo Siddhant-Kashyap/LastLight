@@ -16,6 +16,8 @@ var _metal_shiny: StandardMaterial3D   # pipes, smooth metal
 var _wood: StandardMaterial3D          # crates, desks
 var _ceiling_mat: StandardMaterial3D
 var _rust: StandardMaterial3D
+var _joint_mat: StandardMaterial3D     # floor panel seam lines
+var _wet_mat: StandardMaterial3D       # reflective wet puddle
 
 func _ready() -> void:
 	_make_materials()
@@ -25,6 +27,7 @@ func _ready() -> void:
 	_build_dark_corridor()
 	_build_break_room()
 	_build_main_lobby()
+	_build_floor_details()
 	_build_rain()
 	_build_lights()
 
@@ -60,6 +63,12 @@ func _make_materials() -> void:
 
 	# Rust/aged metal
 	_rust = _mat(Color(0.28, 0.14, 0.06), 0.92, 0.15)
+
+	# Concrete / tile seam line
+	_joint_mat = _mat(Color(0.05, 0.055, 0.065), 0.98)
+
+	# Standing water / wet puddle — very low roughness for reflection
+	_wet_mat = _mat(Color(0.04, 0.05, 0.08), 0.12)
 
 func _mat(color: Color, rough: float = 0.85, metal: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -447,6 +456,68 @@ func _build_main_lobby() -> void:
 
 	# Overturned chair near Maya's desk
 	_deco(Vector3(96.5, 0.28, 0.5), Vector3(0.72, 0.58, 0.72), _metal_rough)
+
+# ── FLOOR DETAILS ─────────────────────────────────────────────────────────────
+
+func _floor_grid(x0: float, x1: float, x_step: float, z_step: float = 0.0) -> void:
+	var zs := z_step if z_step > 0.0 else x_step
+	var fy  := 0.013   # sits just above floor surface
+	var th  := 0.022   # strip height
+	var sw  := 0.044   # seam width
+	# X seams — lines running along Z, placed at each X tile boundary
+	var x := x0 + x_step
+	while x < x1 - 0.05:
+		_deco(Vector3(x, fy, 0.0), Vector3(sw, th, DEPTH), _joint_mat)
+		x += x_step
+	# Z seams — lines running along X, placed at each Z tile boundary
+	var cx := (x0 + x1) * 0.5
+	var cw := x1 - x0
+	var z := -HD + zs
+	while z < HD - 0.05:
+		_deco(Vector3(cx, fy, z), Vector3(cw, th, sw), _joint_mat)
+		z += zs
+
+func _build_floor_details() -> void:
+	# ── EXTERIOR  (x: -22 → 10) ──
+	# 4 m × 3 m concrete slab joints (full depth in Z = one slab per row)
+	_floor_grid(-22.0, 10.0, 4.0, 3.0)
+
+	# Standing water puddles — low roughness = mirror-like reflection
+	_deco(Vector3(-14.5, 0.014,  0.0),  Vector3(3.2, 0.024, 1.1), _wet_mat)
+	_deco(Vector3(-6.5,  0.014,  0.2),  Vector3(2.0, 0.024, 0.7), _wet_mat)
+	_deco(Vector3( 2.0,  0.014, -0.1),  Vector3(1.4, 0.024, 0.5), _wet_mat)
+	_deco(Vector3(-1.5,  0.014,  0.4),  Vector3(0.8, 0.024, 0.4), _wet_mat)
+
+	# Curb lip at building wall base
+	_deco(Vector3(9.7, 0.08, 0.0), Vector3(0.28, 0.16, DEPTH), _metal_rough)
+
+	# ── LOBBY ENTRANCE  (x: 10 → 35) ──
+	_floor_grid(10.0, 35.0, 2.5, 1.5)
+	# High-traffic worn strip down the middle
+	_deco(Vector3(22.5, 0.015, 0.0), Vector3(25.0, 0.030, 0.32),
+		_mat(Color(0.13, 0.12, 0.11), 0.93))
+
+	# ── DARK CORRIDOR  (x: 35 → 55) ──
+	_floor_grid(35.0, 55.0, 2.0, 1.5)
+	# Damp seepage patches — atmosphere
+	_deco(Vector3(42.0, 0.015,  0.0), Vector3(4.0, 0.022, 0.9), _wet_mat)
+	_deco(Vector3(50.5, 0.015, -0.1), Vector3(2.5, 0.022, 0.5), _wet_mat)
+
+	# ── BREAK ROOM  (x: 55 → 78) ──
+	_floor_grid(55.0, 78.0, 2.0, 1.5)
+	# Scuff marks near door
+	_deco(Vector3(56.5, 0.015, 0.0), Vector3(3.0, 0.028, 0.5),
+		_mat(Color(0.10, 0.09, 0.08), 0.96))
+
+	# ── MAIN LOBBY  (x: 78 → 108) ──
+	_floor_grid(78.0, 108.0, 2.5, 1.5)
+	# Subtle central runner strip (suggests carpet / mat)
+	_deco(Vector3(93.0, 0.015, 0.0), Vector3(15.0, 0.028, 1.1),
+		_mat(Color(0.10, 0.09, 0.10), 0.99))
+
+	# ── THRESHOLD STRIPS at every room transition ──
+	for tx: float in [10.0, 35.0, 55.0, 78.0]:
+		_deco(Vector3(tx, 0.022, 0.0), Vector3(0.18, 0.044, DEPTH), _metal_shiny)
 
 # ── STREET LIGHTS ─────────────────────────────────────────────────────────────
 
