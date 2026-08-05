@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/levels/Chapter01Builder.gd" id="1_builder"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_player"]
@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" path="res://scenes/world/Checkpoint.tscn" id="7_checkpoint"]
 [ext_resource type="PackedScene" path="res://scenes/props/MemoryLog.tscn" id="8_log"]
 [ext_resource type="PackedScene" path="res://scenes/props/FuelPickup.tscn" id="9_fuel"]
+[ext_resource type="PackedScene" path="res://scenes/world/InteractiveDoor.tscn" id="10_door"]
+[ext_resource type="PackedScene" path="res://scenes/props/InteractableSwitch.tscn" id="11_switch"]
 
 [node name="Chapter01_Surface" type="Node"]
 
@@ -76,3 +78,18 @@ position = Vector3(24, 0.2, 0)
 
 [node name="Fuel3" parent="Props" instance=ExtResource("9_fuel")]
 position = Vector3(72, 0.2, 0)
+
+[node name="EntranceDoor" parent="Props" instance=ExtResource("10_door")]
+position = Vector3(10.0, 1.4, 0)
+door_id = "entrance_door"
+is_locked = true
+
+[node name="CorridorDoor" parent="Props" instance=ExtResource("10_door")]
+position = Vector3(35.0, 1.4, 0)
+door_id = "corridor_door"
+is_locked = false
+
+[node name="EntranceSwitch" parent="Props" instance=ExtResource("11_switch")]
+position = Vector3(8.0, 1.2, 0)
+switch_id = "switch_entrance"
+target_door_id = "entrance_door"

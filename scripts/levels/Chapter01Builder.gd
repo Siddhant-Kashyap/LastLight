@@ -20,6 +20,7 @@ var _rust: StandardMaterial3D
 func _ready() -> void:
 	_make_materials()
 	_build_exterior()
+	_build_street_lights()
 	_build_lobby_entrance()
 	_build_dark_corridor()
 	_build_break_room()
@@ -192,7 +193,8 @@ func _build_lobby_entrance() -> void:
 
 	_solid(Vector3(cx, -0.25, 0), Vector3(w, 0.5, DEPTH),      _int_concrete)
 	_solid(Vector3(cx, cy + 0.25, 0), Vector3(w, 0.5, DEPTH),  _ceiling_mat)
-	_solid(Vector3(35, cy * 0.5, 0), Vector3(0.5, cy + 0.5, DEPTH), _wall_mid)
+	# Upper wall only — gap y:0–2.8 left for door
+	_solid(Vector3(35, 3.65, 0), Vector3(0.5, 1.7, DEPTH), _wall_mid)
 	_deco(Vector3(cx, cy * 0.5, -HD), Vector3(w, cy + 0.5, 0.2), _back_wall)
 
 	# Floor skirting strip
@@ -247,7 +249,8 @@ func _build_dark_corridor() -> void:
 
 	_solid(Vector3(cx, -0.25, 0), Vector3(w, 0.5, DEPTH), _int_concrete)
 	_solid(Vector3(cx, cy + 0.25, 0), Vector3(w, 0.5, DEPTH), _ceiling_mat)
-	_solid(Vector3(35, cy * 0.5, 0), Vector3(0.5, cy + 0.5, DEPTH), _wall_dark)
+	# Upper wall only — gap y:0–2.8 for door (shared with lobby above)
+	_solid(Vector3(35, 3.15, 0), Vector3(0.5, 0.7, DEPTH), _wall_dark)
 	_solid(Vector3(55, cy * 0.5, 0), Vector3(0.5, cy + 0.5, DEPTH), _wall_dark)
 	_deco(Vector3(cx, cy * 0.5, -HD), Vector3(w, cy + 0.5, 0.2), _wall_dark)
 
@@ -427,6 +430,51 @@ func _build_main_lobby() -> void:
 
 	# Overturned chair near Maya's desk
 	_deco(Vector3(96.5, 0.28, 0.5), Vector3(0.72, 0.58, 0.72), _metal_rough)
+
+# ── STREET LIGHTS ─────────────────────────────────────────────────────────────
+
+func _build_street_lights() -> void:
+	_street_light(Vector3(-18, 0, -0.3))
+	_street_light(Vector3(-7,  0, -0.3))
+	_street_light(Vector3( 3,  0, -0.3))
+
+func _street_light(base: Vector3) -> void:
+	# Pole
+	_pipe(base + Vector3(0, 2.2, 0), 0.048, 4.4, _metal_rough)
+
+	# Horizontal arm
+	_pipe(base + Vector3(0.28, 4.35, 0), 0.038, 0.65, _metal_rough, 0.0, PI * 0.5)
+
+	# Lamp head housing
+	_deco(base + Vector3(0.28, 4.12, 0), Vector3(0.48, 0.22, 0.40), _metal_rough)
+
+	# Lens face — emissive
+	_deco(base + Vector3(0.28, 3.99, 0), Vector3(0.36, 0.06, 0.30),
+		_emissive_mat(Color(0.88, 0.80, 0.58), Color(0.65, 0.58, 0.32)))
+
+	# SpotLight cone
+	var light := SpotLight3D.new()
+	light.position = base + Vector3(0.28, 4.0, 0)
+	light.rotation.x = -PI * 0.5
+	light.light_color = Color(0.92, 0.82, 0.58)
+	light.light_energy = 2.4
+	light.spot_angle = 40.0
+	light.spot_range = 8.5
+	light.shadow_enabled = true
+	add_child(light)
+
+	# Fog volume — soft amber halo around the cone
+	var fog := FogVolume.new()
+	fog.position = base + Vector3(0.28, 2.2, 0)
+	fog.size = Vector3(3.8, 4.8, 3.4)
+	fog.shape = 0  # ELLIPSOID
+	var fm := FogMaterial.new()
+	fm.density = 0.20
+	fm.albedo = Color(0.88, 0.80, 0.58, 1.0)
+	fm.emission = Color(0.05, 0.04, 0.015)
+	fm.edge_fade = 0.55
+	fog.material = fm
+	add_child(fog)
 
 # ── RAIN ──────────────────────────────────────────────────────────────────────
 
