@@ -136,6 +136,17 @@ func _spot(pos: Vector3, color: Color, energy: float, angle: float, range_val: f
 	l.shadow_enabled = true
 	add_child(l)
 
+func _model(path: String, pos: Vector3, scale_val: float = 1.0, ry: float = 0.0) -> void:
+	var packed := load(path)
+	if packed == null:
+		return
+	var inst := (packed as PackedScene).instantiate()
+	inst.position = pos
+	inst.scale = Vector3.ONE * scale_val
+	if ry != 0.0:
+		inst.rotation_degrees.y = ry
+	add_child(inst)
+
 # ── Section 1: EXTERIOR ───────────────────────────────────────────────────────
 # x: -22 to 10 | open sky, rain, wet ground, industrial debris
 
@@ -163,9 +174,10 @@ func _build_exterior() -> void:
 	_solid(Vector3(-17.5, 1.55, 0.1), Vector3(1.6, 0.8, 1.0), _wood)
 	_deco(Vector3(-15.5, 0.35, 0.2), Vector3(0.7, 0.7, 0.7), _metal_rough)
 
-	# Rusted barrel cluster
-	_deco(Vector3(-10, 0.42, 0.3),  Vector3(0.6, 0.85, 0.6), _rust)
-	_deco(Vector3(-10.8, 0.42, -0.2), Vector3(0.6, 0.85, 0.6), _rust)
+	# Rock cluster (replaces rusted barrels) — Rock1 Y_min=0, sits on ground
+	_model("res://assets/models/environment/Rock1.gltf", Vector3(-10.0, 0, 0.3), 0.75)
+	_model("res://assets/models/environment/Rock1.gltf", Vector3(-9.2, 0, -0.3), 0.52, 75.0)
+	_model("res://assets/models/environment/Rock2.gltf", Vector3(-11.2, 0, -0.1), 0.55, 30.0)
 
 	# Fallen signage / panel on ground
 	_deco(Vector3(-3, 0.04, 0.2), Vector3(2.0, 0.08, 0.7), _metal_rough)
@@ -184,6 +196,11 @@ func _build_exterior() -> void:
 
 	# Trim strip between ground and back facade
 	_deco(Vector3(-6, 0.05, -HD + 0.06), Vector3(34, 0.1, 0.12), _metal_rough)
+
+	# Dead trees — horror atmosphere in background, Y_min=0 so no Y offset needed
+	_model("res://assets/models/environment/DeadTree_1.gltf", Vector3(-19, 0, -1.2), 0.85)
+	_model("res://assets/models/environment/DeadTree_2.gltf", Vector3(-14, 0, -1.1), 0.75, 40.0)
+	_model("res://assets/models/environment/DeadTree_3.gltf", Vector3(-3.5, 0, -1.3), 0.80, 120.0)
 
 # ── Section 2: LOBBY ENTRANCE ─────────────────────────────────────────────────
 # x: 10 to 35 | ceiling y=4.5 | security desk, emergency red light

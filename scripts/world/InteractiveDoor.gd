@@ -29,7 +29,7 @@ func _build() -> void:
 	det.shape = sp
 	add_child(det)
 
-	# Physics door panel
+	# Physics door panel (always exists for collision)
 	_door_body = StaticBody3D.new()
 	_door_body.name = "DoorBody"
 	_door_shape = CollisionShape3D.new()
@@ -38,52 +38,44 @@ func _build() -> void:
 	_door_shape.shape = box
 	_door_body.add_child(_door_shape)
 
-	var panel := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = Vector3(0.18, door_height, 2.2)
-	panel.mesh = bm
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.18, 0.17, 0.15)
-	mat.roughness = 0.52
-	mat.metallic = 0.38
-	panel.material_override = mat
-	_door_body.add_child(panel)
-
-	# Horizontal detail strip on door face
-	var strip := MeshInstance3D.new()
-	var sm := BoxMesh.new()
-	sm.size = Vector3(0.20, 0.08, 2.21)
-	strip.mesh = sm
-	strip.position.y = 0.6
-	var strip_mat := StandardMaterial3D.new()
-	strip_mat.albedo_color = Color(0.28, 0.26, 0.24)
-	strip_mat.roughness = 0.42
-	strip_mat.metallic = 0.62
-	strip.material_override = strip_mat
-	_door_body.add_child(strip)
-
-	var strip2 := MeshInstance3D.new()
-	var sm2 := BoxMesh.new()
-	sm2.size = Vector3(0.20, 0.08, 2.21)
-	strip2.mesh = sm2
-	strip2.position.y = -0.6
-	strip2.material_override = strip_mat
-	_door_body.add_child(strip2)
+	# Try gltf asset first, fall back to BoxMesh
+	# Door_Closed model: X:±1 W=2, Y:0→4 H=4, Z:0.81→1.0 (thin)
+	# Rotate 90° Y → door spans Z, thin in X; scale 0.7 → 2.8m tall
+	# X offset -0.634 centers the door panel on X=0 after rotation+scale
+	# Y offset -1.4 puts model base at world y=0 (DoorBody is at parent y=1.4)
+	var packed := load("res://assets/models/environment/Door_Closed.gltf")
+	if packed != null:
+		var model := (packed as PackedScene).instantiate()
+		model.rotation_degrees.y = 90.0
+		model.scale = Vector3(0.7, 0.7, 0.7)
+		model.position = Vector3(-0.634, -1.4, 0.0)
+		_door_body.add_child(model)
+	else:
+		var panel := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.18, door_height, 2.2)
+		panel.mesh = bm
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.18, 0.17, 0.15)
+		mat.roughness = 0.52
+		mat.metallic = 0.38
+		panel.material_override = mat
+		_door_body.add_child(panel)
 
 	add_child(_door_body)
 
-	# Status light strip — stays fixed at door position
+	# Status LED strip — always procedural so emission can be controlled
 	_status_mat = StandardMaterial3D.new()
 	_status_mat.emission_enabled = true
-	_status_mat.albedo_color = Color(0.08, 0.02, 0.02)
-	_status_mat.emission_energy_multiplier = 1.0
+	_status_mat.albedo_color = Color(0.06, 0.02, 0.02)
+	_status_mat.emission_energy_multiplier = 1.2
 	_set_status_locked(is_locked)
 
 	var status := MeshInstance3D.new()
-	var status_mesh := BoxMesh.new()
-	status_mesh.size = Vector3(0.22, door_height + 0.04, 0.05)
-	status.mesh = status_mesh
-	status.position = Vector3(0, 0, 1.12)
+	var sm := BoxMesh.new()
+	sm.size = Vector3(0.06, door_height * 0.85, 0.04)
+	status.mesh = sm
+	status.position = Vector3(0, 0, 0.5)
 	status.material_override = _status_mat
 	add_child(status)
 

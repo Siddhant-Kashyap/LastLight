@@ -5,7 +5,7 @@ extends Interactable
 @export var target_door_id: String = ""
 
 var _is_on: bool = false
-var _lever_pivot: Node3D
+var _lever_model: Node3D
 var _status_mat: StandardMaterial3D
 
 func _ready() -> void:
@@ -21,55 +21,35 @@ func _build() -> void:
 	det.shape = sp
 	add_child(det)
 
-	# Housing box
-	var housing := MeshInstance3D.new()
-	var hm := BoxMesh.new()
-	hm.size = Vector3(0.12, 0.42, 0.32)
-	housing.mesh = hm
-	var h_mat := StandardMaterial3D.new()
-	h_mat.albedo_color = Color(0.20, 0.20, 0.23)
-	h_mat.roughness = 0.48
-	h_mat.metallic = 0.42
-	housing.material_override = h_mat
-	add_child(housing)
+	# Try gltf lever asset; fall back to procedural housing
+	# Lever_Left model: Y: -0.031→1.266, scale 0.4 → ~0.51m tall
+	# position.y -0.25 centers the lever around switch's world position
+	var packed := load("res://assets/models/environment/Lever_Left.gltf")
+	if packed != null:
+		_lever_model = (packed as PackedScene).instantiate()
+		_lever_model.scale = Vector3(0.4, 0.4, 0.4)
+		_lever_model.position = Vector3(0.0, -0.25, 0.0)
+		add_child(_lever_model)
+	else:
+		# Fallback: procedural housing box + lever arm
+		var housing := MeshInstance3D.new()
+		var hm := BoxMesh.new()
+		hm.size = Vector3(0.12, 0.42, 0.32)
+		housing.mesh = hm
+		var h_mat := StandardMaterial3D.new()
+		h_mat.albedo_color = Color(0.20, 0.20, 0.23)
+		h_mat.roughness = 0.48
+		h_mat.metallic = 0.42
+		housing.material_override = h_mat
+		add_child(housing)
 
-	# Lever pivot
-	_lever_pivot = Node3D.new()
-	_lever_pivot.name = "LeverPivot"
-	_lever_pivot.position = Vector3(0, 0.08, 0.08)
-	add_child(_lever_pivot)
-
-	var lever := MeshInstance3D.new()
-	var lm := CylinderMesh.new()
-	lm.top_radius = 0.022
-	lm.bottom_radius = 0.038
-	lm.height = 0.25
-	lever.mesh = lm
-	lever.position.y = 0.125
-	var l_mat := StandardMaterial3D.new()
-	l_mat.albedo_color = Color(0.32, 0.30, 0.28)
-	l_mat.roughness = 0.28
-	l_mat.metallic = 0.72
-	lever.material_override = l_mat
-	_lever_pivot.add_child(lever)
-
-	# Lever knob
-	var knob := MeshInstance3D.new()
-	var km := SphereMesh.new()
-	km.radius = 0.042
-	km.height = 0.084
-	knob.mesh = km
-	knob.position.y = 0.26
-	knob.material_override = l_mat
-	_lever_pivot.add_child(knob)
-
-	# Status LED
+	# Status LED (always procedural for controllable emission)
 	var led := MeshInstance3D.new()
 	var lmesh := SphereMesh.new()
-	lmesh.radius = 0.035
-	lmesh.height = 0.07
+	lmesh.radius = 0.038
+	lmesh.height = 0.076
 	led.mesh = lmesh
-	led.position = Vector3(0, 0.14, 0.17)
+	led.position = Vector3(0.0, 0.28, 0.18)
 	_status_mat = StandardMaterial3D.new()
 	_status_mat.albedo_color = Color(0.5, 0.04, 0.02)
 	_status_mat.emission_enabled = true
@@ -86,9 +66,12 @@ func _on_interact(_interactor: Node3D) -> void:
 		_trigger_door()
 
 func _animate_lever() -> void:
-	var target_rot := -0.55 if _is_on else 0.55
+	if _lever_model == null:
+		return
+	# Tilt the whole lever model on Z to simulate lever flip
+	var target_rot := -28.0 if _is_on else 28.0
 	var tween := create_tween()
-	tween.tween_property(_lever_pivot, "rotation:z", target_rot, 0.22)\
+	tween.tween_property(_lever_model, "rotation_degrees:z", target_rot, 0.22)\
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _update_led() -> void:
